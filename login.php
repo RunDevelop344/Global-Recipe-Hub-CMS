@@ -1,0 +1,51 @@
+<?php
+session_start();
+require 'connect.php';
+
+$error = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = strtolower(trim($_POST['email']));
+    $password = trim($_POST['password']);
+
+    $statement = $db->prepare("SELECT * FROM users WHERE LOWER(email) = ?");
+    $statement->execute([$email]);
+    $user = $statement->fetch(PDO::FETCH_ASSOC);
+
+    if ($user) {
+        if (password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['role'] = $user['role'];
+            header("Location: index.php");
+            exit;
+        } else {
+            $error = "Invalid password!";
+        }
+    } else {
+        $error = "Email not found!";
+    }
+}
+?>
+
+<?php include 'header.php'; ?>
+
+<h2>Login</h2>
+
+<form method="POST" action="">
+    <label>Email:</label>
+    <input type="email" name="email" required>
+
+    <label>Password:</label>
+    <input type="password" name="password" required>
+
+    <button type="submit">Login</button>
+</form>
+
+<?php if ($error): ?>
+    <p class="error"><?= htmlspecialchars($error) ?></p>
+<?php endif; ?>
+
+<p>Don't have an account? <a href="register.php">Register here</a></p>
+
+<?php include 'footer.php'; ?>
