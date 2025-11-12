@@ -18,7 +18,7 @@ $order = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
 
 $sql = "
     SELECT 
-        meals.meal_id AS meal_id, 
+        meals.meal_id, 
         meals.meal_name, 
         meals.image_url,
         meals.created_at, 
@@ -30,9 +30,9 @@ $sql = "
 ";
 
 if ($search !== '') {
-    $sql .= " WHERE meals.meal_name = :search OR categories.category_name = :search";
+    $sql .= " WHERE meals.meal_name LIKE :search OR categories.category_name LIKE :search";
 }
-
+$sql .= " GROUP BY meals.meal_id";
 $sql .= " ORDER BY $sort $order";
 
 $statement = $db->prepare($sql);
@@ -40,7 +40,7 @@ $statement = $db->prepare($sql);
 
 
 if ($search !== '') {
-    $statement->bindValue(':search', $search);
+    $statement->bindValue(':search', "%$search%");
 
 }
 
