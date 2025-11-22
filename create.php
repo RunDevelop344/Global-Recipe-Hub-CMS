@@ -1,9 +1,4 @@
-<?php
-// Force logout by sending 401 headers to browser
-header('HTTP/1.1 401 Unauthorized');
-header('WWW-Authenticate: Basic realm="Admin Area"');
-exit("Login required.");
-?>
+
 
 <?php 
 require_once 'admin.php';

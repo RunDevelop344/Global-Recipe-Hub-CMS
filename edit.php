@@ -1,9 +1,3 @@
-<?php
-// Force logout by sending 401 headers to browser
-header('HTTP/1.1 401 Unauthorized');
-header('WWW-Authenticate: Basic realm="Admin Area"');
-exit("Login required.");
-?>
 
 <?php
 require_once 'admin.php'; 
@@ -28,17 +22,54 @@ if (isset($_POST['delete'])) {
     exit;
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+// Update recipe ONLY when update form is submitted
+if (isset($_POST['name']) && !isset($_POST['moderate_action']) && !isset($_POST['delete'])) {
+
     $name = $_POST['name'];
     $category_id = $_POST['category'];
-    $area = htmlspecialchars($_POST['area']);
+    $region = htmlspecialchars($_POST['region']);
     $instructions = $_POST['instructions'];
     $image = $_POST['image'];
 
-    $update = $db->prepare("UPDATE meals SET meal_name=?, category_id=?, area=?, instructions=?, image_url=? WHERE meal_id=?");
-    $update->execute([$name, $category_id, $area, $instructions, $image, $id]);
-    echo "<p> Recipe updated successfully!</p>";
+    $update = $db->prepare("UPDATE meals SET meal_name=?, category_id=?, region=?, instructions=?, image_url=? WHERE meal_id=?");
+    $update->execute([$name, $category_id, $region, $instructions, $image, $id]);
+
+    header("Location: index.php");
+    exit;
 }
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['moderate_action'], $_POST['comment_id'])) {
+    $comment_id = $_POST['comment_id'];
+    $action = $_POST['moderate_action'];
+
+    switch ($action) {
+        case 'delete':
+            $statement = $db->prepare("DELETE FROM comments WHERE comment_id = ?");
+            $statement->execute([$comment_id]);
+            break;
+
+        case 'hide':
+            $statement = $db->prepare("UPDATE comments SET visible = 0 WHERE comment_id = ?");
+            $statement->execute([$comment_id]);
+            break;
+
+    }
+    header("Location: edit.php?id=$id"); // Refresh page after moderation
+    exit;
+}
+
+// Fetch comments by non-admins for this recipe
+$commentStatement = $db->prepare("
+    SELECT c.comment_id, c.user_id, c.comment, c.visible, u.username 
+    FROM comments c
+    JOIN users u ON c.user_id = u.user_id
+    WHERE c.meal_id = ? AND u.is_admin = 0
+    ORDER BY c.created_at DESC
+");
+$commentStatement->execute([$id]);
+$comments = $commentStatement->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 
 <h2>Edit Recipe</h2>
@@ -65,8 +96,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <option value="14" <?php if($category_id==14) echo 'selected'; ?>>Goat</option>
     </select><br><br>
 
-    <label>Area:</label>
-    <input type="text" name="area"><br><br>
+    
+    <label>Region:</label>
+    <input type="text" name="region" value="<?= htmlspecialchars($recipe['region'] ?? '') ?>"><br><br>
+
 
     <label>Instructions:</label><br>
     <textarea name="instructions" rows="5" cols="40"><?= htmlspecialchars($recipe['instructions']) ?></textarea><br><br>
@@ -75,11 +108,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <input type="text" name="image" value="<?= htmlspecialchars($recipe['image_url']) ?>"><br><br>
 
     <button type="submit">Update Recipe</button>
+</form>
 
     <form method="POST" onsubmit="return confirm('Are you sure you want to delete this recipe?');">
     <button type="submit" name="delete" >Delete Recipe</button>
 </form>
 
-</form>
+<h2>Moderate Comments</h2>
+
+<?php if (empty($comments)): ?>
+    <p>No comments to moderate.</p>
+<?php else: ?>
+    <?php foreach ($comments as $comment): ?>
+        <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
+            <p><strong><?= htmlspecialchars($comment['username']) ?>:</strong> 
+                <?= $comment['visible'] ? htmlspecialchars($comment['comment']) : '<em>Hidden</em>'; ?>
+            </p>
+            <form method="POST" style="display:inline;">
+                <input type="hidden" name="comment_id" value="<?= $comment['comment_id'] ?>">
+                <button name="moderate_action" value="delete" onclick="return confirm('Delete this comment?');">Delete</button>
+                <button name="moderate_action" value="hide">Hide</button>
+
+            </form>
+        </div>
+    
+    <?php endforeach; ?>
+<?php endif; ?>
+
 
 <?php include 'footer.php'; ?>

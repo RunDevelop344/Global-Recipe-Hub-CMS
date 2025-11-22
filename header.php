@@ -13,9 +13,9 @@
         <a href="index.php">Home</a>
         <a href="create.php">Add Recipe</a>
         <?php if (isset($_SESSION['user_id'])): ?>
-            <a href="logout.php">Logout</a>
+            <a href="login.php">Logout</a>
         <?php else: ?>
-            <a href="login.php">Login</a>
+            <a href="logout.php">Log in</a>
         <?php endif; ?>
     </nav>
 </header>

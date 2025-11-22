@@ -17,23 +17,30 @@ $order = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
 
 
 $sql = "
+    
     SELECT 
-        meals.meal_id, 
-        meals.meal_name, 
+        MIN(meals.meal_id) AS meal_id,
+        meals.meal_name,
         meals.image_url,
-        meals.created_at, 
-        meals.updated_at, 
-        categories.category_name AS category
+        categories.category_name AS category,
+        MIN(meals.created_at) AS created_at,
+        MAX(meals.updated_at) AS updated_at
     FROM meals
     JOIN categories ON meals.category_id = categories.category_id
-    
 ";
 
 if ($search !== '') {
     $sql .= " WHERE meals.meal_name LIKE :search OR categories.category_name LIKE :search";
 }
-$sql .= " GROUP BY meals.meal_id";
-$sql .= " ORDER BY $sort $order";
+
+$sql .= "
+    GROUP BY meals.meal_name, meals.image_url, categories.category_name
+    ORDER BY $sort $order
+";
+
+
+// $sql .= " GROUP BY meals.meal_id";
+// $sql .= " ORDER BY $sort $order";
 
 $statement = $db->prepare($sql);
 
@@ -87,8 +94,9 @@ $currentSortName = [
             <p><strong>Category:</strong> <?= htmlspecialchars($recipe['category']) ?></p>
             <p><small>Created: <?= htmlspecialchars($recipe['created_at']) ?></small></p>
             <p><small>Updated: <?= htmlspecialchars($recipe['updated_at']) ?></small></p>
-            <a href="post.php?id=<?= $recipe['meal_id'] ?>">View</a> |
-            <a href="edit.php?id=<?= $recipe['meal_id'] ?>">Edit</a>
+            <a href="post.php?id=<?= $recipe['meal_id'] ?>">View</a>
+            <!-- <a href="edit.php?id=
+             ">Edit</a> -->
         </div>
     <?php endforeach; ?>
 <?php else: ?>
