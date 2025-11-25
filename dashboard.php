@@ -1,15 +1,36 @@
 <?php
 require 'admin.php';
 require 'header.php';
-require 'connect.php';
 ?>
 
-<h1>Admin Dashboard</h1>
+<div class="dashboard-container">
 
-<h2>Recipe Management</h2>
-<ul>
-    <li><a href="create.php">➕ Add New Recipe</a></li>
-    <li><a href="dashboard_recipes.php">📚 Edit Existing Recipes</a></li>
-</ul>
+    <div class="dashboard-title">Admin Dashboard</div>
+
+    <div class="admin-grid">
+
+        <div class="admin-card">
+            <span class="admin-icon">➕</span>
+            <a href="create.php">Add New Recipe</a>
+        </div>
+
+        <div class="admin-card">
+            <span class="admin-icon">📚</span>
+            <a href="dashboard_recipes.php">Edit Recipes</a>
+        </div>
+
+        <div class="admin-card">
+            <span class="admin-icon">📝</span>
+            <a href="manage_comments.php">Moderate Comments</a>
+        </div>
+
+        <div class="admin-card">
+            <span class="admin-icon">👥</span>
+            <a href="users.php">Manage Users</a>
+        </div>
+
+    </div>
+
+</div>
 
 <?php include 'footer.php'; ?>
