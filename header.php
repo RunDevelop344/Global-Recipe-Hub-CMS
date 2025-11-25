@@ -1,5 +1,4 @@
 <?php
-// Start session BEFORE any HTML output
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -12,19 +11,15 @@ if (session_status() === PHP_SESSION_NONE) {
     <link rel="stylesheet" href="main.css">
 </head>
 <body>
-
 <header>
-    <h1>Global Recipe Hub</h1>
-
+    <h1> Global Recipe Hub</h1>
     <nav>
         <a href="index.php">Home</a>
 
-        <!-- Admin Dashboard only for admins -->
         <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
             <a href="dashboard.php">Dashboard</a>
         <?php endif; ?>
 
-        <!-- Logout if logged in -->
         <?php if (isset($_SESSION['user_id'])): ?>
             <a href="logout.php">Logout</a>
         <?php else: ?>
@@ -32,5 +27,4 @@ if (session_status() === PHP_SESSION_NONE) {
         <?php endif; ?>
     </nav>
 </header>
-
 <hr>
