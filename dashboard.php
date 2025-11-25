@@ -1,4 +1,15 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    echo "<p style='color:red; text-align:center;'>Access denied. Admins only.</p>";
+    exit;
+}
+?>
+
+<?php
 require 'header.php';
 
 if (session_status() === PHP_SESSION_NONE) {

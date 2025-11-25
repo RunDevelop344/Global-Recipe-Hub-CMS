@@ -16,9 +16,9 @@ if (session_status() === PHP_SESSION_NONE) {
     <nav>
         <a href="index.php">Home</a>
 
-        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-            <a href="dashboard.php">Dashboard</a>
-        <?php endif; ?>
+    <!-- Dashboard always visible -->
+<a href="dashboard.php">Dashboard</a>
+    
 
         <?php if (isset($_SESSION['user_id'])): ?>
             <a href="logout.php">Logout</a>
