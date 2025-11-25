@@ -1,4 +1,6 @@
-/* ===== Global Recipe Hub Styles ===== */
+/* ===========================
+   GLOBAL STYLES
+=========================== */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -7,19 +9,22 @@
 }
 
 body {
-    background-color: #faf9f7;
+    background-color: #f9f7f4;
     color: #333;
     line-height: 1.6;
     padding: 20px;
 }
 
-/* ===== Header and Navigation ===== */
+/* ===========================
+   HEADER & NAVIGATION
+=========================== */
 header {
     background-color: #f76c6c;
     color: #fff;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 12px;
     text-align: center;
+    margin-bottom: 20px;
 }
 
 header h1 {
@@ -35,16 +40,21 @@ nav a {
 }
 
 nav a:hover {
-    color: #ffeaa7;
+    color: #ffd1a8;
 }
 
-/* ===== Recipe Listing ===== */
-h2 {
-    color: #2e2e2e;
-    margin: 20px 0;
+/* ===========================
+   HEADINGS
+=========================== */
+h2, h3 {
     text-align: center;
+    margin: 20px 0;
+    color: #2b2b2b;
 }
 
+/* ===========================
+   RECIPE CARDS (INDEX PAGE)
+=========================== */
 .recipes {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -55,113 +65,182 @@ h2 {
 .recipe-card {
     background: #fff;
     border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    text-align: center;
     padding: 15px;
-    transition: transform 0.2s, box-shadow 0.2s;
+    text-align: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    transition: 0.2s;
 }
 
 .recipe-card:hover {
     transform: scale(1.03);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 5px 14px rgba(0,0,0,0.15);
 }
 
 .recipe-card img {
-    border-radius: 8px;
     width: 100%;
     height: 170px;
+    border-radius: 10px;
     object-fit: cover;
 }
 
 .recipe-card h3 {
+    margin-top: 12px;
     color: #e74c3c;
-    margin: 10px 0 5px;
 }
 
 .recipe-card a {
     text-decoration: none;
-    color: #3498db;
-    font-weight: 500;
+    color: #2980b9;
 }
 
 .recipe-card a:hover {
     text-decoration: underline;
 }
 
-/* ===== Forms ===== */
+/* ===========================
+   FORMS (CREATE / EDIT)
+=========================== */
 form {
-    background: #fff;
-    border-radius: 10px;
+    background-color: #fff;
     padding: 20px;
-    margin: 20px auto;
+    border-radius: 12px;
     width: 80%;
     max-width: 600px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin: 20px auto;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
 form label {
-    display: block;
     font-weight: bold;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
+    display: block;
 }
 
 form input[type="text"],
 form input[type="email"],
-form input[type="number"],
+form input[type="password"],
 form select,
 form textarea {
     width: 100%;
     padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
     border-radius: 6px;
-    font-size: 1rem;
+    border: 1px solid #ccc;
+    margin-bottom: 15px;
 }
 
 form button {
     background-color: #27ae60;
-    color: white;
-    border: none;
+    color: #fff;
     padding: 10px 20px;
+    border: none;
     border-radius: 6px;
-    font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.3s;
+    font-size: 1rem;
+    transition: 0.3s;
 }
 
 form button:hover {
-    background-color: #219150;
+    background-color: #1f8b4c;
 }
 
-/* ===== Footer ===== */
-footer {
-    background: #f76c6c;
-    color: #fff;
+/* ===========================
+   ADMIN DASHBOARD
+=========================== */
+.dashboard-container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 10px;
+}
+
+.dashboard-title {
+    font-size: 32px;
     text-align: center;
+    margin-bottom: 25px;
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 20px;
+}
+
+.admin-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px 15px;
+    text-align: center;
+    border: 1px solid #ddd;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    transition: 0.2s;
+}
+
+.admin-card:hover {
+    background: #f1f1f1;
+    transform: translateY(-4px);
+}
+
+.admin-card a {
+    color: #222;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.admin-icon {
+    font-size: 46px;
+    margin-bottom: 10px;
+}
+
+/* ===========================
+   ADMIN RECIPE LIST (dashboard_recipes.php)
+=========================== */
+.recipe-list-container {
+    max-width: 800px;
+    margin: 30px auto;
+}
+
+.recipe-item {
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    transition: 0.2s;
+}
+
+.recipe-item:hover {
+    background: #f2f2f2;
+}
+
+.recipe-item a {
+    color: #0077cc;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.recipe-item a:hover {
+    text-decoration: underline;
+}
+
+/* ===========================
+   COMMENTS SECTION
+=========================== */
+.review-box,
+.comment-box {
+    background: white;
     padding: 15px;
     border-radius: 10px;
-    margin-top: 40px;
+    margin: 15px auto;
+    width: 90%;
+    max-width: 700px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
-/* ===== Reviews Section ===== */
-h3 {
-    margin-top: 25px;
-    color: #2e2e2e;
-}
-
-.review-box {
-    background: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-/* ===== Buttons and Alerts ===== */
-p {
-    margin: 10px 0;
-}
-
+/* ===========================
+   BUTTONS / ALERTS
+=========================== */
 .success {
     color: #27ae60;
     font-weight: bold;
@@ -172,11 +251,25 @@ p {
     font-weight: bold;
 }
 
-/* ===== Responsive Design ===== */
+/* ===========================
+   FOOTER
+=========================== */
+footer {
+    background-color: #f76c6c;
+    color: #fff;
+    text-align: center;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 40px;
+}
+
+/* ===========================
+   RESPONSIVE DESIGN
+=========================== */
 @media (max-width: 768px) {
     nav a {
         display: block;
-        margin: 10px 0;
+        margin: 8px 0;
     }
 
     form {
