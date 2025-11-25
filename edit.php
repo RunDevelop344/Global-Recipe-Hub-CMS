@@ -2,21 +2,76 @@
 require_once 'admin.php'; 
 require_once 'connect.php'; 
 require 'header.php'; 
+
+$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 ?>
 
-<?php
-$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+<!-- ==============================
+     SEARCH SECTION
+=================================== -->
+<h2>Search for a Recipe to Edit</h2>
 
-// Get recipe ID
+<?php
+$searchQuery = trim($_GET['search'] ?? '');
+$searchResults = [];
+
+if ($searchQuery !== "") {
+    $sql = "
+        SELECT meals.meal_id, meals.meal_name, categories.category_name
+        FROM meals
+        JOIN categories ON meals.category_id = categories.category_id
+        WHERE meals.meal_name LIKE :s OR categories.category_name LIKE :s
+        ORDER BY meals.meal_name ASC
+    ";
+
+    $stm = $db->prepare($sql);
+    $stm->bindValue(":s", "%$searchQuery%");
+    $stm->execute();
+    $searchResults = $stm->fetchAll(PDO::FETCH_ASSOC);
+}
+?>
+
+<!-- Search Bar -->
+<form method="GET" action="edit.php">
+    <label>Search by Name or Category:</label>
+    <input type="text" name="search" placeholder="e.g. Chicken, Dessert..." 
+           value="<?= htmlspecialchars($searchQuery) ?>">
+    <button type="submit">Search</button>
+</form>
+
+<?php if ($searchQuery !== "" && empty($searchResults)): ?>
+    <p>No recipes found matching your search.</p>
+<?php endif; ?>
+
+<!-- Search Results -->
+<?php if (!empty($searchResults)): ?>
+    <div class="recipe-list-container">
+        <h3>Search Results</h3>
+        <?php foreach ($searchResults as $result): ?>
+            <div class="recipe-item">
+                <?= htmlspecialchars($result['meal_name']) ?> 
+                (<?= htmlspecialchars($result['category_name']) ?>)
+                <a href="edit.php?search=<?= urlencode($searchQuery) ?>&id=<?= $result['meal_id'] ?>">Edit</a>
+            </div>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+
+<hr><br>
+
+<!-- ==============================
+     LOAD RECIPE IF ID IS SELECTED
+=================================== -->
+<?php
 $id = $_GET['id'] ?? null;
 
+// If no recipe selected, stop BEFORE edit form (but keep search visible)
 if (!$id) {
-    echo "<p>Invalid recipe ID.</p>";
     include 'footer.php';
-    exit;
+    return;
 }
 
-// Fetch recipe
+// Fetch Recipe Data
 $statement = $db->prepare("SELECT * FROM meals WHERE meal_id = ?");
 $statement->execute([$id]);
 $recipe = $statement->fetch(PDO::FETCH_ASSOC);
@@ -24,20 +79,24 @@ $recipe = $statement->fetch(PDO::FETCH_ASSOC);
 if (!$recipe) {
     echo "<p>Recipe not found.</p>";
     include 'footer.php';
-    exit;
+    return;
 }
 
 $category_id = $recipe['category_id'];
 
+// ==============================
 // DELETE RECIPE
+// ==============================
 if (isset($_POST['delete'])) {
     $delete = $db->prepare("DELETE FROM meals WHERE meal_id = ?");
     $delete->execute([$id]);
-    header("Location: index.php");
+    header("Location: edit.php?search=" . urlencode($searchQuery));
     exit;
 }
 
+// ==============================
 // UPDATE RECIPE
+// ==============================
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['name']) && !isset($_POST['moderate_action'])) {
 
     $name = trim($_POST['name']);
@@ -53,30 +112,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['name']) && !isset($_P
     ");
     $update->execute([$name, $category_id, $region, $instructions, $image, $id]);
 
-    header("Location: index.php");
+    header("Location: edit.php?search=" . urlencode($searchQuery) . "&id=$id");
     exit;
 }
 
-// COMMENT MODERATION
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['moderate_action'], $_POST['comment_id'])) {
-    
-    $comment_id = (int)$_POST['comment_id'];
-    $action = $_POST['moderate_action'];
-
-    if ($action === 'delete') {
-        $statement = $db->prepare("DELETE FROM comments WHERE comment_id = ?");
-        $statement->execute([$comment_id]);
-
-    } elseif ($action === 'hide') {
-        $statement = $db->prepare("UPDATE comments SET visible = 0 WHERE comment_id = ?");
-        $statement->execute([$comment_id]);
-    }
-
-    header("Location: edit.php?id=$id");
-    exit;
-}
-
-// FETCH COMMENTS (using role = 'user' rather than is_admin)
+// ==============================
+// FETCH COMMENTS
+// ==============================
 $commentStatement = $db->prepare("
     SELECT c.comment_id, c.user_id, c.comment, c.visible, u.username 
     FROM comments c
@@ -86,61 +128,64 @@ $commentStatement = $db->prepare("
 ");
 $commentStatement->execute([$id]);
 $comments = $commentStatement->fetchAll(PDO::FETCH_ASSOC);
-
 ?>
 
+<!-- ==============================
+     EDIT FORM
+=================================== -->
 <h2>Edit Recipe</h2>
 
 <form method="POST">
-    <label>Recipe Name:</label><br>
-    <input type="text" name="name" value="<?= htmlspecialchars($recipe['meal_name']) ?>"><br><br>
+    <label>Recipe Name:</label>
+    <input type="text" name="name" value="<?= htmlspecialchars($recipe['meal_name']) ?>" required>
 
-    <label>Category:</label><br>
-    <select id="category" name="category">
-        <option value="">- Category -</option>
-
+    <label>Category:</label>
+    <select name="category" required>
+        <option value="">Select Category</option>
         <?php for ($i = 1; $i <= 14; $i++): ?>
             <option value="<?= $i ?>" <?= ($category_id == $i ? 'selected' : '') ?>>
                 Category <?= $i ?>
             </option>
         <?php endfor; ?>
-    </select><br><br>
+    </select>
 
     <label>Region:</label>
-    <input type="text" name="region" value="<?= htmlspecialchars($recipe['region']) ?>"><br><br>
+    <input type="text" name="region" value="<?= htmlspecialchars($recipe['region']) ?>">
 
-    <label>Instructions:</label><br>
-    <textarea name="instructions" rows="5" cols="40"><?= htmlspecialchars($recipe['instructions']) ?></textarea><br><br>
+    <label>Instructions:</label>
+    <textarea name="instructions" rows="5"><?= htmlspecialchars($recipe['instructions']) ?></textarea>
 
-    <label>Image URL:</label><br>
-    <input type="text" name="image" value="<?= htmlspecialchars($recipe['image_url']) ?>"><br><br>
+    <label>Image URL:</label>
+    <input type="text" name="image" value="<?= htmlspecialchars($recipe['image_url']) ?>">
 
     <button type="submit">Update Recipe</button>
 </form>
 
-<form method="POST" onsubmit="return confirm('Are you sure you want to delete this recipe?');">
+<form method="POST" onsubmit="return confirm('Delete this recipe?');">
     <button type="submit" name="delete">Delete Recipe</button>
 </form>
 
+<!-- ==============================
+     COMMENT MODERATION
+=================================== -->
 <h2>Moderate Comments</h2>
 
 <?php if (empty($comments)): ?>
     <p>No comments to moderate.</p>
 <?php else: ?>
     <?php foreach ($comments as $comment): ?>
-        <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
+        <div class="comment-box">
             <p><strong><?= htmlspecialchars($comment['username']) ?>:</strong>
                 <?= $comment['visible'] ? htmlspecialchars($comment['comment']) : '<em>Hidden</em>' ?>
             </p>
 
-            <form method="POST" style="display:inline;">
+            <form method="POST" style="margin-top:5px;">
                 <input type="hidden" name="comment_id" value="<?= $comment['comment_id'] ?>">
-
-                <button name="moderate_action" value="delete" onclick="return confirm('Delete this comment?');">Delete</button>
+                <button name="moderate_action" value="delete" onclick="return confirm('Delete comment?');">Delete</button>
                 <button name="moderate_action" value="hide">Hide</button>
             </form>
         </div>
     <?php endforeach; ?>
 <?php endif; ?>
 
-<?php include 'footer.php'; ?>
+
