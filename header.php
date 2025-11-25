@@ -13,18 +13,49 @@ if (session_status() === PHP_SESSION_NONE) {
 <body>
 <header>
     <h1> Global Recipe Hub</h1>
-    <nav>
-        <a href="index.php">Home</a>
 
-    <!-- Dashboard always visible -->
-<a href="dashboard.php">Dashboard</a>
-    
+<nav>
 
-        <?php if (isset($_SESSION['user_id'])): ?>
-            <a href="logout.php">Logout</a>
-        <?php else: ?>
-            <a href="login.php">Login</a>
-        <?php endif; ?>
-    </nav>
+    <a href="index.php">Home</a>
+
+    <!-- CLICK DROPDOWN -->
+    <div class="dropdown">
+        <button class="dropbtn" onclick="toggleMenu(event)">Dashboard ▼</button>
+
+        <div class="dropdown-content" id="dashMenu">
+            <a href="dashboard.php">Admin Home</a>
+            <a href="create.php">Add Recipe</a>
+            <a href="edit.php">Edit Recipes</a>
+            <a href="moderate_comments.php">Moderate Comments</a>
+        </div>
+    </div>
+
+    <?php if (isset($_SESSION['user_id'])): ?>
+        <a href="logout.php">Logout</a>
+    <?php else: ?>
+        <a href="login.php">Login</a>
+    <?php endif; ?>
+
+</nav>
+   
+
 </header>
 <hr>
+
+<script>
+function toggleMenu(event) {
+    event.stopPropagation(); // prevent closing immediately
+    const menu = document.getElementById("dashMenu");
+    if (menu) {
+        menu.classList.toggle("show");
+    }
+}
+
+document.addEventListener("click", function(event) {
+    const menu = document.getElementById("dashMenu");
+    if (menu && !event.target.closest(".dropdown")) {
+        menu.classList.remove("show");
+    }
+});
+</script>
+
