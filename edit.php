@@ -1,7 +1,17 @@
 <?php 
-require_once 'admin.php'; 
-require_once 'connect.php'; 
-require 'header.php'; 
+require_once 'connect.php';
+require 'header.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// ADMIN PROTECTION
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    echo "<p>Access denied. Admins only.</p>";
+    exit;
+}
+
 
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 ?>

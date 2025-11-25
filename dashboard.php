@@ -1,6 +1,16 @@
 <?php
-require 'admin.php';
 require 'header.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// ADMIN PROTECTION
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    echo "<p>Access denied. Admins only.</p>";
+    exit;
+}
+
 ?>
 
 <div class="dashboard-container">

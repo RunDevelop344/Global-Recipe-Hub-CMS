@@ -1,7 +1,17 @@
 <?php 
-require_once 'admin.php';
-require_once 'connect.php'; 
-include 'header.php'; 
+require_once 'connect.php';
+require_once 'header.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// ADMIN PROTECTION
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    echo "<p>Access denied. Admins only.</p>";
+    exit;
+}
+ 
 ?>
 
 <?php
