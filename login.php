@@ -1,5 +1,4 @@
 <?php
-// Start the session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -7,33 +6,24 @@ if (session_status() === PHP_SESSION_NONE) {
 require 'connect.php';
 
 $error = "";
-
-// Determine where to redirect after login
 $redirect = $_POST['redirect'] ?? $_GET['redirect'] ?? 'index.php';
-
-// Logout handling (if ever used)
-if (isset($_GET['logout'])) {
-    $redirect = 'index.php';
-}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $email = strtolower(trim($_POST['email'] ?? ''));
-    $password = trim($_POST['password'] ?? '');
+    $email = strtolower(trim($_POST['email']));
+    $password = trim($_POST['password']);
 
-    if (!empty($email) && !empty($password)) {
+    if ($email && $password) {
 
-        $statement = $db->prepare("SELECT * FROM users WHERE LOWER(email) = ?");
+        $statement = $db->prepare("SELECT * FROM users WHERE email = ?");
         $statement->execute([$email]);
         $user = $statement->fetch(PDO::FETCH_ASSOC);
 
-        // Validate user authentication
         if ($user && password_verify($password, $user['password'])) {
 
-            // Set session variables
             $_SESSION['user_id'] = $user['user_id'];
-            $_SESSION['email'] = $user['email'];
-            $_SESSION['role'] = $user['role']; // <-- Required for Dashboard visibility
+            $_SESSION['email']   = $user['email'];
+            $_SESSION['role']    = $user['role']; // ★ important
 
             header("Location: " . $redirect);
             exit;
@@ -41,7 +31,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } else {
             $error = "Invalid email or password!";
         }
-
     } else {
         $error = "Please fill in all fields.";
     }
