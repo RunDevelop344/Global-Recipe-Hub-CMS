@@ -116,23 +116,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['name']) && !isset($_P
     exit;
 }
 
-// ==============================
-// FETCH COMMENTS
-// ==============================
-$commentStatement = $db->prepare("
-    SELECT c.comment_id, c.user_id, c.comment, c.visible, u.username 
-    FROM comments c
-    JOIN users u ON c.user_id = u.user_id
-    WHERE c.meal_id = ? AND u.role = 'user'
-    ORDER BY c.created_at DESC
-");
-$commentStatement->execute([$id]);
-$comments = $commentStatement->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!-- ==============================
-     EDIT FORM
-=================================== -->
+    //  EDIT FORM
+ =================================== -->
+
 <h2>Edit Recipe</h2>
 
 <form method="POST">
@@ -165,27 +154,5 @@ $comments = $commentStatement->fetchAll(PDO::FETCH_ASSOC);
     <button type="submit" name="delete">Delete Recipe</button>
 </form>
 
-<!-- ==============================
-     COMMENT MODERATION
-=================================== -->
-<h2>Moderate Comments</h2>
-
-<?php if (empty($comments)): ?>
-    <p>No comments to moderate.</p>
-<?php else: ?>
-    <?php foreach ($comments as $comment): ?>
-        <div class="comment-box">
-            <p><strong><?= htmlspecialchars($comment['username']) ?>:</strong>
-                <?= $comment['visible'] ? htmlspecialchars($comment['comment']) : '<em>Hidden</em>' ?>
-            </p>
-
-            <form method="POST" style="margin-top:5px;">
-                <input type="hidden" name="comment_id" value="<?= $comment['comment_id'] ?>">
-                <button name="moderate_action" value="delete" onclick="return confirm('Delete comment?');">Delete</button>
-                <button name="moderate_action" value="hide">Hide</button>
-            </form>
-        </div>
-    <?php endforeach; ?>
-<?php endif; ?>
-
+<?php include 'footer.php'; ?>
 
