@@ -1,167 +1,278 @@
-/* ===== Global Recipe Hub Styles ===== */ * 
-{ 
-box-sizing: border-box; 
-margin: 0; 
-padding: 0; 
-font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; 
-} 
-body { 
-background-color: #faf9f7; color: #333; line-height: 1.6; padding: 20px; 
-}
-/* ===== Header and Navigation ===== */ 
-header { 
-background-color: #f76c6c; 
-color: #fff; 
-padding: 20px; 
-border-radius: 10px; 
-text-align: center; 
+/* ===========================
+   GLOBAL STYLES
+=========================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-header h1 { 
-margin-bottom: 10px; 
+body {
+    background-color: #f9f7f4;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
 }
 
-nav a { 
-color: #fff; 
-text-decoration: none; 
-margin: 0 15px; 
-font-weight: bold; 
-transition: color 0.3s; 
-} 
-nav a:hover { 
-color: #ffeaa7; 
+/* ===========================
+   HEADER & NAVIGATION
+=========================== */
+header {
+    background-color: #f76c6c;
+    color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 20px;
 }
 
-/* ===== Recipe Listing ===== */ 
-h2 { 
-color: #2e2e2e; 
-margin: 20px 0; 
-text-align: center; 
-} 
-.recipes { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
-    gap: 20px; 
-    margin-top: 20px; 
-} 
+header h1 {
+    margin-bottom: 10px;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 15px;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: #ffd1a8;
+}
+
+/* ===========================
+   HEADINGS
+=========================== */
+h2, h3 {
+    text-align: center;
+    margin: 20px 0;
+    color: #2b2b2b;
+}
+
+/* ===========================
+   RECIPE CARDS (INDEX PAGE)
+=========================== */
+.recipes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
 
 .recipe-card {
-background: #fff; 
-border-radius: 12px; 
-box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
-text-align: center; 
-padding: 15px; 
-transition: transform 0.2s, box-shadow 0.2s; 
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    transition: 0.2s;
 }
 
-.recipe-card:hover { 
-transform: scale(1.03); 
-box-shadow: 0 6px 12px rgba(0,0,0,0.15); 
+.recipe-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 5px 14px rgba(0,0,0,0.15);
 }
 
-.recipe-card img { 
-    border-radius: 8px; 
-    width: 100%; 
-    height: 170px; 
-    object-fit: cover; 
+.recipe-card img {
+    width: 100%;
+    height: 170px;
+    border-radius: 10px;
+    object-fit: cover;
 }
 
-.recipe-card h3 { 
-color: #e74c3c; 
-margin: 10px 0 5px; 
+.recipe-card h3 {
+    margin-top: 12px;
+    color: #e74c3c;
 }
 
-.recipe-card a { 
-text-decoration: none; 
-color: #3498db; 
-font-weight: 500; } 
-
-.recipe-card a:hover { 
-    text-decoration: underline; 
+.recipe-card a {
+    text-decoration: none;
+    color: #2980b9;
 }
 
-/* ===== Forms ===== */ 
-form { 
-background: #fff; 
-border-radius: 10px; 
-padding: 20px; 
-margin: 20px auto; 
-width: 80%; max-width: 600px; 
-box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
-} 
+.recipe-card a:hover {
+    text-decoration: underline;
+}
 
-form label { 
-display: block; 
-font-weight: bold; 
-margin-bottom: 5px; 
-} 
+/* ===========================
+   FORMS (CREATE / EDIT)
+=========================== */
+form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 80%;
+    max-width: 600px;
+    margin: 20px auto;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
 
-form input[type="text"], 
-form input[type="email"], 
-form input[type="number"], 
-form select, 
-form textarea { 
-width: 100%; 
-padding: 10px;
-margin-bottom: 15px; 
-border: 1px solid #ccc; 
-border-radius: 6px; 
-font-size: 1rem; 
-} 
+form label {
+    font-weight: bold;
+    margin-bottom: 6px;
+    display: block;
+}
 
-form button { 
-background-color: #27ae60; color: white; 
-border: none; 
-padding: 10px 20px; 
-border-radius: 6px; 
-font-size: 1rem; 
-cursor: pointer; 
-transition: background-color 0.3s; } 
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form select,
+form textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-bottom: 15px;
+}
 
-form button:hover { 
-background-color: #219150; 
-} 
+form button {
+    background-color: #27ae60;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.3s;
+}
 
-/* ===== Footer ===== */ 
+form button:hover {
+    background-color: #1f8b4c;
+}
 
-footer { 
-background: #f76c6c; color: #fff; 
-text-align: center; 
-padding: 15px; 
-border-radius: 10px; 
-margin-top: 40px; } 
+/* ===========================
+   ADMIN DASHBOARD
+=========================== */
+.dashboard-container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 10px;
+}
 
-/* ===== Reviews Section ===== */ 
-h3 { 
-margin-top: 25px; 
-color: #2e2e2e; } 
+.dashboard-title {
+    font-size: 32px;
+    text-align: center;
+    margin-bottom: 25px;
+}
 
-.review-box { 
-background: #fff; 
-padding: 15px; 
-border-radius: 8px; 
-margin-bottom: 10px; 
-box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 20px;
+}
 
-/* ===== Buttons and Alerts ===== */ 
-p { 
-margin: 10px 0; } 
-.success { 
-color: #27ae60; 
-font-weight: bold; } 
-.error {  
-color: #e74c3c; 
-font-weight: bold; 
-} 
+.admin-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px 15px;
+    text-align: center;
+    border: 1px solid #ddd;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    transition: 0.2s;
+}
 
-/* ===== Responsive Design ===== */ 
+.admin-card:hover {
+    background: #f1f1f1;
+    transform: translateY(-4px);
+}
 
-@media (max-width: 768px) { 
-nav a { 
-display: block; 
-margin: 10px 0; 
-} 
-form { width: 95%; 
-} 
+.admin-card a {
+    color: #222;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 18px;
+}
 
+.admin-icon {
+    font-size: 46px;
+    margin-bottom: 10px;
+}
+
+/* ===========================
+   ADMIN RECIPE LIST (dashboard_recipes.php)
+=========================== */
+.recipe-list-container {
+    max-width: 800px;
+    margin: 30px auto;
+}
+
+.recipe-item {
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    transition: 0.2s;
+}
+
+.recipe-item:hover {
+    background: #f2f2f2;
+}
+
+.recipe-item a {
+    color: #0077cc;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.recipe-item a:hover {
+    text-decoration: underline;
+}
+
+/* ===========================
+   COMMENTS SECTION
+=========================== */
+.review-box,
+.comment-box {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 15px auto;
+    width: 90%;
+    max-width: 700px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+/* ===========================
+   BUTTONS / ALERTS
+=========================== */
+.success {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.error {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/* ===========================
+   FOOTER
+=========================== */
+footer {
+    background-color: #f76c6c;
+    color: #fff;
+    text-align: center;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 40px;
+}
+
+/* ===========================
+   RESPONSIVE DESIGN
+=========================== */
+@media (max-width: 768px) {
+    nav a {
+        display: block;
+        margin: 8px 0;
+    }
+
+    form {
+        width: 95%;
+    }
 }
