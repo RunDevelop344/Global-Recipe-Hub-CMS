@@ -1,23 +1,15 @@
- <?php
+<?php
+session_start();
 
-  define('ADMIN_LOGIN','ghostface');
+// User not logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php?redirect=" . urlencode($_SERVER['REQUEST_URI']));
+    exit;
+}
 
-  define('ADMIN_PASSWORD','killa');
-
-  if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])
-
-      || ($_SERVER['PHP_AUTH_USER'] != ADMIN_LOGIN)
-
-      || ($_SERVER['PHP_AUTH_PW'] != ADMIN_PASSWORD)) {
-
-    header('HTTP/1.1 401 Unauthorized');
-
-    header('WWW-Authenticate: Basic realm="Our Blog"');
-
-    exit("Access Denied: Username and password required.");
-
-  }
-
-   
-
+// Check user role
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    echo "<h2 style='color:red;'>Access Denied — Admins Only</h2>";
+    exit;
+}
 ?>
