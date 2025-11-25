@@ -1,5 +1,5 @@
 /* ===========================
-   GLOBAL STYLES
+   GLOBAL
 =========================== */
 * {
     box-sizing: border-box;
@@ -11,19 +11,19 @@
 body {
     background-color: #f9f7f4;
     color: #333;
-    line-height: 1.6;
     padding: 20px;
+    line-height: 1.6;
 }
 
 /* ===========================
-   HEADER & NAVIGATION
+   HEADER + NAV
 =========================== */
 header {
     background-color: #f76c6c;
-    color: #fff;
     padding: 20px;
     border-radius: 12px;
     text-align: center;
+    color: #fff;
     margin-bottom: 20px;
 }
 
@@ -33,27 +33,27 @@ header h1 {
 
 nav a {
     color: #fff;
-    text-decoration: none;
     margin: 0 15px;
     font-weight: bold;
-    transition: color 0.3s;
+    text-decoration: none;
+    transition: 0.3s;
 }
 
 nav a:hover {
-    color: #ffd1a8;
+    color: #ffe0c2;
 }
 
 /* ===========================
-   HEADINGS
+   PAGE HEADERS
 =========================== */
-h2, h3 {
+h2 {
     text-align: center;
     margin: 20px 0;
     color: #2b2b2b;
 }
 
 /* ===========================
-   RECIPE CARDS (INDEX PAGE)
+   RECIPE GRID (index.php)
 =========================== */
 .recipes {
     display: grid;
@@ -64,8 +64,8 @@ h2, h3 {
 
 .recipe-card {
     background: #fff;
-    border-radius: 12px;
     padding: 15px;
+    border-radius: 12px;
     text-align: center;
     box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     transition: 0.2s;
@@ -73,24 +73,25 @@ h2, h3 {
 
 .recipe-card:hover {
     transform: scale(1.03);
-    box-shadow: 0 5px 14px rgba(0,0,0,0.15);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
 }
 
 .recipe-card img {
     width: 100%;
     height: 170px;
-    border-radius: 10px;
     object-fit: cover;
+    border-radius: 10px;
 }
 
 .recipe-card h3 {
-    margin-top: 12px;
+    margin: 10px 0;
     color: #e74c3c;
 }
 
 .recipe-card a {
     text-decoration: none;
     color: #2980b9;
+    font-weight: bold;
 }
 
 .recipe-card a:hover {
@@ -98,13 +99,13 @@ h2, h3 {
 }
 
 /* ===========================
-   FORMS (CREATE / EDIT)
+   FORMS (create.php, edit.php, login)
 =========================== */
 form {
-    background-color: #fff;
+    background: #fff;
     padding: 20px;
     border-radius: 12px;
-    width: 80%;
+    width: 90%;
     max-width: 600px;
     margin: 20px auto;
     box-shadow: 0 3px 10px rgba(0,0,0,0.1);
@@ -117,30 +118,56 @@ form label {
 }
 
 form input[type="text"],
-form input[type="email"],
 form input[type="password"],
+form input[type="email"],
 form select,
 form textarea {
     width: 100%;
-    padding: 10px;
     border-radius: 6px;
     border: 1px solid #ccc;
+    padding: 10px;
     margin-bottom: 15px;
 }
 
 form button {
     background-color: #27ae60;
-    color: #fff;
+    color: white;
     padding: 10px 20px;
-    border: none;
     border-radius: 6px;
+    border: none;
     cursor: pointer;
-    font-size: 1rem;
     transition: 0.3s;
 }
 
 form button:hover {
-    background-color: #1f8b4c;
+    background-color: #1e8f4f;
+}
+
+/* DELETE BUTTON IN EDIT PAGE */
+form button[name="delete"] {
+    background-color: #e74c3c;
+}
+
+form button[name="delete"]:hover {
+    background-color: #c0392b;
+}
+
+/* ===========================
+   COMMENT BOXES
+=========================== */
+.review-box,
+.comment-box {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 700px;
+    margin: 15px auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.comment-box form {
+    margin-top: 10px;
 }
 
 /* ===========================
@@ -148,13 +175,12 @@ form button:hover {
 =========================== */
 .dashboard-container {
     max-width: 900px;
-    margin: 30px auto;
-    padding: 10px;
+    margin: 20px auto;
 }
 
 .dashboard-title {
-    font-size: 32px;
     text-align: center;
+    font-size: 30px;
     margin-bottom: 25px;
 }
 
@@ -166,58 +192,56 @@ form button:hover {
 
 .admin-card {
     background: #fff;
-    border-radius: 12px;
     padding: 25px 15px;
-    text-align: center;
     border: 1px solid #ddd;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    text-align: center;
     transition: 0.2s;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
 }
 
 .admin-card:hover {
-    background: #f1f1f1;
     transform: translateY(-4px);
-}
-
-.admin-card a {
-    color: #222;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 18px;
-}
-
-.admin-icon {
-    font-size: 46px;
-    margin-bottom: 10px;
-}
-
-/* ===========================
-   ADMIN RECIPE LIST (dashboard_recipes.php)
-=========================== */
-.recipe-list-container {
-    max-width: 800px;
-    margin: 30px auto;
-}
-
-.recipe-item {
-    background: #fff;
-    border-radius: 10px;
-    padding: 12px 18px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    display: flex;
-    justify-content: space-between;
-    transition: 0.2s;
-}
-
-.recipe-item:hover {
     background: #f2f2f2;
 }
 
-.recipe-item a {
-    color: #0077cc;
-    font-weight: bold;
+.admin-icon {
+    font-size: 44px;
+    margin-bottom: 10px;
+}
+
+.admin-card a {
     text-decoration: none;
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* ===========================
+   DASHBOARD - RECIPE LIST
+=========================== */
+.recipe-list-container {
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.recipe-item {
+    padding: 12px 18px;
+    background: #fff;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.recipe-item:hover {
+    background: #f4f4f4;
+}
+
+.recipe-item a {
+    font-weight: bold;
+    color: #0077cc;
 }
 
 .recipe-item a:hover {
@@ -225,51 +249,24 @@ form button:hover {
 }
 
 /* ===========================
-   COMMENTS SECTION
-=========================== */
-.review-box,
-.comment-box {
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    margin: 15px auto;
-    width: 90%;
-    max-width: 700px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-}
-
-/* ===========================
-   BUTTONS / ALERTS
-=========================== */
-.success {
-    color: #27ae60;
-    font-weight: bold;
-}
-
-.error {
-    color: #e74c3c;
-    font-weight: bold;
-}
-
-/* ===========================
    FOOTER
 =========================== */
 footer {
     background-color: #f76c6c;
-    color: #fff;
-    text-align: center;
     padding: 15px;
     border-radius: 12px;
+    color: white;
+    text-align: center;
     margin-top: 40px;
 }
 
 /* ===========================
-   RESPONSIVE DESIGN
+   RESPONSIVE
 =========================== */
 @media (max-width: 768px) {
     nav a {
         display: block;
-        margin: 8px 0;
+        margin: 10px 0;
     }
 
     form {
