@@ -4,6 +4,20 @@
 
 <h2>All Recipes</h2>
 
+
+<?php
+// --- PAGINATION SETTINGS ---
+$recipesPerPage = 12; // You can change this to 8, 12, 16, 20, etc.
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+if ($page < 1) {
+    $page = 1;
+}
+
+$offset = ($page - 1) * $recipesPerPage;
+
+?>
+
 <?php
 $allowedSorts = ['meal_name', 'created_at', 'updated_at'];
 
@@ -16,6 +30,27 @@ if (!in_array($sort, $allowedSorts)) {
 }
 $order = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
 
+// Count total recipes for pagination
+$countSql = "
+    SELECT COUNT(DISTINCT meals.meal_name) AS total
+    FROM meals
+    JOIN categories ON meals.category_id = categories.category_id
+";
+
+if ($search !== '') {
+    $countSql .= " WHERE meals.meal_name LIKE :search OR categories.category_name LIKE :search";
+}
+
+$countStmt = $db->prepare($countSql);
+
+if ($search !== '') {
+    $countStmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
+}
+
+$countStmt->execute();
+$totalRecipes = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+$totalPages = ceil($totalRecipes / $recipesPerPage);
 
 $sql = "
     
@@ -37,6 +72,7 @@ if ($search !== '') {
 $sql .= "
     GROUP BY meals.meal_name, meals.image_url, categories.category_name
     ORDER BY $sort $order
+    LIMIT :limit OFFSET :offset
 ";
 
 
@@ -45,15 +81,16 @@ $sql .= "
 
 $statement = $db->prepare($sql);
 
-
-
 if ($search !== '') {
-    $statement->bindValue(':search', "%$search%");
-
+    $statement->bindValue(':search', "%$search%", PDO::PARAM_STR);
 }
+
+$statement->bindValue(':limit', $recipesPerPage, PDO::PARAM_INT);
+$statement->bindValue(':offset', $offset, PDO::PARAM_INT);
 
 $statement->execute();
 $recipes = $statement->fetchAll(PDO::FETCH_ASSOC);
+
 
 
 function sortArrow($column, $currentSort, $currentOrder) {
@@ -99,6 +136,25 @@ $currentSortName = [
             <!-- <a href="edit.php?id=
              ">Edit</a> -->
         </div>
+        
+<!-- PAGINATION LINKS -->
+<div class="pagination" style="text-align:center; margin:20px 0;">
+    <?php if ($page > 1): ?>
+        <a href="?page=<?= $page - 1 ?>&sort=<?= $sort ?>&order=<?= $order ?>&search=<?= urlencode($search) ?>">Previous</a>
+    <?php endif; ?>
+
+    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+        <a 
+            href="?page=<?= $i ?>&sort=<?= $sort ?>&order=<?= $order ?>&search=<?= urlencode($search) ?>"
+            style="<?= $i == $page ? 'font-weight:bold; color:red;' : '' ?>"
+        ><?= $i ?></a>
+    <?php endfor; ?>
+
+    <?php if ($page < $totalPages): ?>
+        <a href="?page=<?= $page + 1 ?>&sort=<?= $sort ?>&order=<?= $order ?>&search=<?= urlencode($search) ?>">Next</a>
+    <?php endif; ?>
+</div>
+
     <?php endforeach; ?>
 <?php else: ?>
     <p>No recipes found.</p>
