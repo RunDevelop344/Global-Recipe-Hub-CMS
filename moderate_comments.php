@@ -1,10 +1,7 @@
 <?php
+session_start();
 require 'connect.php';
 require 'header.php';
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 // ADMIN PROTECTION
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -12,8 +9,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 
-
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
 
 // Fetch all recipes for dropdown
 $recipeStmt = $db->query("SELECT meal_id, meal_name FROM meals ORDER BY meal_name ASC");

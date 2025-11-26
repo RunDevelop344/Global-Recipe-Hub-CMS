@@ -27,12 +27,17 @@ $searchResults = [];
 
 if ($searchQuery !== "") {
     $sql = "
-        SELECT meals.meal_id, meals.meal_name, categories.category_name
-        FROM meals
-        JOIN categories ON meals.category_id = categories.category_id
-        WHERE meals.meal_name LIKE :s OR categories.category_name LIKE :s
-        ORDER BY meals.meal_name ASC
-    ";
+    SELECT 
+        MIN(meals.meal_id) AS meal_id,
+        meals.meal_name,
+        categories.category_name
+    FROM meals
+    JOIN categories ON meals.category_id = categories.category_id
+    WHERE meals.meal_name LIKE :s OR categories.category_name LIKE :s
+    GROUP BY meals.meal_name, categories.category_name
+    ORDER BY meals.meal_name ASC
+";
+
 
     $stm = $db->prepare($sql);
     $stm->bindValue(":s", "%$searchQuery%");
