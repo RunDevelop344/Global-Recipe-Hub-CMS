@@ -20,7 +20,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
     <!-- CLICK DROPDOWN -->
     <div class="dropdown">
-        <button class="dropbtn" onclick="toggleMenu(event)">Dashboard ▼</button>
+        <button class="dropbtn" onclick="toggleMenu(event)">Dashboard</button>
 
         <div class="dropdown-content" id="dashMenu">
             <a href="dashboard.php">Admin Home</a>
