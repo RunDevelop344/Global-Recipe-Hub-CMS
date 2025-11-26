@@ -6,6 +6,12 @@
 
 
 <?php
+$allowedSorts = ['meal_name', 'created_at', 'updated_at'];
+
+$sort = $_GET['sort'] ?? 'meal_id';
+$order = $_GET['order'] ?? 'DESC';
+$search = trim($_GET['search'] ?? '');
+
 // --- PAGINATION SETTINGS ---
 $recipesPerPage = 12; // You can change this to 8, 12, 16, 20, etc.
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -15,15 +21,6 @@ if ($page < 1) {
 }
 
 $offset = ($page - 1) * $recipesPerPage;
-
-?>
-
-<?php
-$allowedSorts = ['meal_name', 'created_at', 'updated_at'];
-
-$sort = $_GET['sort'] ?? 'meal_id';
-$order = $_GET['order'] ?? 'DESC';
-$search = trim($_GET['search'] ?? '');
 
 if (!in_array($sort, $allowedSorts)) {
     $sort = 'meal_id';
@@ -122,6 +119,7 @@ $currentSortName = [
 <!-- Current Sort Display -->
 <p><em>Currently sorted by: <strong><?= $currentSortName ?></strong> (<?= $order ?>)</em></p>
 
+
 <!-- Recipes Grid -->
 <div class="recipes" style="display: flex; flex-wrap: wrap; gap: 15px;">
 <?php if (count($recipes) > 0): ?>
@@ -133,11 +131,14 @@ $currentSortName = [
             <p><small>Created: <?= htmlspecialchars($recipe['created_at']) ?></small></p>
             <p><small>Updated: <?= htmlspecialchars($recipe['updated_at']) ?></small></p>
             <a href="post.php?id=<?= $recipe['meal_id'] ?>">View</a>
-            <!-- <a href="edit.php?id=
-             ">Edit</a> -->
         </div>
-        
-<!-- PAGINATION LINKS -->
+    <?php endforeach; ?>
+<?php else: ?>
+    <p>No recipes found.</p>
+<?php endif; ?>
+</div>
+
+<!-- PAGINATION (correct location) -->
 <div class="pagination" style="text-align:center; margin:20px 0;">
     <?php if ($page > 1): ?>
         <a href="?page=<?= $page - 1 ?>&sort=<?= $sort ?>&order=<?= $order ?>&search=<?= urlencode($search) ?>">Previous</a>
@@ -154,11 +155,3 @@ $currentSortName = [
         <a href="?page=<?= $page + 1 ?>&sort=<?= $sort ?>&order=<?= $order ?>&search=<?= urlencode($search) ?>">Next</a>
     <?php endif; ?>
 </div>
-
-    <?php endforeach; ?>
-<?php else: ?>
-    <p>No recipes found.</p>
-<?php endif; ?>
-</div>
-
-<?php include 'footer.php'; ?>
