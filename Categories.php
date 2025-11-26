@@ -39,6 +39,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['update'])) {
     exit;
 }
 
+// Delete Category
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete'])) {
+
+    $id = (int)$_POST['category_id'];
+
+    // OPTIONAL: Prevent deleting categories used by meals
+    // $db->prepare("DELETE FROM meals WHERE category_id = ?")->execute([$id]);
+
+    $stmt = $db->prepare("DELETE FROM categories WHERE category_id = ?");
+    $stmt->execute([$id]);
+
+    header("Location: categories.php");
+    exit;
+}
+
+
 // Fetch all categories
 $categories = $db->query("SELECT * FROM categories ORDER BY category_name ASC")->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -60,9 +76,18 @@ $categories = $db->query("SELECT * FROM categories ORDER BY category_name ASC")-
 <?php foreach ($categories as $cat): ?>
 <form method="POST" style="margin-bottom:10px;">
     <input type="hidden" name="category_id" value="<?= $cat['category_id'] ?>">
-    <input type="text" name="category_name" value="<?= htmlspecialchars($cat['category_name']) ?>" required>
+
+    <input type="text" name="category_name" 
+           value="<?= htmlspecialchars($cat['category_name']) ?>" required>
+
     <button type="submit" name="update">Update</button>
+
+    <button type="submit" name="delete"
+            onclick="return confirm('Delete this category? This cannot be undone.');">
+        Delete
+    </button>
 </form>
 <?php endforeach; ?>
+
 
 <?php include 'footer.php'; ?>

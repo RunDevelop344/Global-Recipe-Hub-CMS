@@ -146,11 +146,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['name']) && !isset($_P
     <label>Category:</label>
     <select name="category" required>
         <option value="">Select Category</option>
-        <?php for ($i = 1; $i <= 14; $i++): ?>
-            <option value="<?= $i ?>" <?= ($category_id == $i ? 'selected' : '') ?>>
-                Category <?= $i ?>
-            </option>
-        <?php endfor; ?>
+    <?php
+$catStmt = $db->query("SELECT category_id, category_name FROM categories ORDER BY category_name ASC");
+$cats = $catStmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<?php foreach ($cats as $c): ?>
+    <option value="<?= $c['category_id'] ?>" <?= ($category_id == $c['category_id'] ? 'selected' : '') ?>>
+        <?= htmlspecialchars($c['category_name']) ?>
+    </option>
+<?php endforeach; ?>
+    
     </select>
 
     <label>Region:</label>
