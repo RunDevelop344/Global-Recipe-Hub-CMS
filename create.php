@@ -11,12 +11,10 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     echo "<p>Access denied. Admins only.</p>";
     exit;
 }
- 
-?>
 
-<?php
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+// Form variables
 $name = '';
 $category_id = '';
 $region = '';
@@ -24,33 +22,74 @@ $instructions = '';
 $image = '';
 $message = '';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $name = trim($_POST['name']);
-    $category_id = (int)$_POST['category'];
-    $region = trim($_POST['region']);
+    // Trim inputs
+    $name         = trim($_POST['name']);
+    $category_id  = (int) $_POST['category'];
+    $region       = trim($_POST['region']);
     $instructions = trim($_POST['instructions']);
-    $image = trim($_POST['image']);
+    $image        = trim($_POST['image']);
 
-    if ($category_id > 0 && !empty($name)) {
+    // -------------------------------
+    // VALIDATIONS
+    // -------------------------------
+    $errors = [];
+
+    // Recipe name validation
+    if (empty($name)) {
+        $errors[] = "Recipe name is required.";
+    } elseif (!preg_match("/^[a-zA-Z0-9\s'-]{2,50}$/", $name)) {
+        $errors[] = "Recipe name can only contain letters, numbers, spaces, apostrophes, and hyphens.";
+    }
+
+    // Category validation
+    if ($category_id <= 0) {
+        $errors[] = "Please select a valid category.";
+    }
+
+    // Region validation (optional)
+    if (!empty($region) && !preg_match("/^[a-zA-Z\s'-]{2,50}$/", $region)) {
+        $errors[] = "Region can only contain letters, spaces, hyphens, and apostrophes.";
+    }
+
+    // Instructions validation (optional)
+    if (!empty($instructions) && strlen($instructions) < 10) {
+        $errors[] = "Instructions must be at least 10 characters long.";
+    }
+
+    // Image URL validation (optional)
+    if (!empty($image) && !filter_var($image, FILTER_VALIDATE_URL)) {
+        $errors[] = "Please enter a valid image URL.";
+    }
+
+    // -------------------------------
+    // IF VALIDATION FAILS
+    // -------------------------------
+    if (!empty($errors)) {
+        $message = "<p class='error'>" . implode("<br>", $errors) . "</p>";
+
+    } else {
+        // -------------------------------
+        // INSERT INTO DATABASE
+        // -------------------------------
         try {
             $statement = $db->prepare("
                 INSERT INTO meals (meal_name, category_id, region, instructions, image_url) 
                 VALUES (?, ?, ?, ?, ?)
             ");
+
             $statement->execute([$name, $category_id, $region, $instructions, $image]);
 
-            $message = "<p style='color:green;'>Recipe added successfully!</p>";
+            $message = "<p class='success'>Recipe added successfully!</p>";
 
             // Clear form
             $name = $instructions = $image = $region = '';
             $category_id = '';
 
         } catch (PDOException $e) {
-            $message = "<p style='color:red;'>Database Error: " . htmlspecialchars($e->getMessage()) . "</p>";
+            $message = "<p class='error'>Database Error: " . htmlspecialchars($e->getMessage()) . "</p>";
         }
-    } else {
-        $message = "<p style='color:red;'>Please fill out all fields and select a valid category.</p>";
     }
 }
 ?>
@@ -60,34 +99,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <form method="POST">
 
-    <label><strong>Recipe Name:</strong></label><br>
-    <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" required><br><br>
+    <label><strong>Recipe Name:</strong></label>
+    <input type="text" name="name" value="<?= htmlspecialchars($name) ?>" required>
 
-    <label><strong>Category:</strong></label><br>
+    <label><strong>Category:</strong></label>
     <select id="category" name="category" required>
         <option value="">- Category -</option>
 
-    <?php
-$catStmt = $db->query("SELECT category_id, category_name FROM categories ORDER BY category_name ASC");
-$cats = $catStmt->fetchAll(PDO::FETCH_ASSOC);
-?>
+        <?php
+        $catStmt = $db->query("SELECT category_id, category_name FROM categories ORDER BY category_name ASC");
+        $cats = $catStmt->fetchAll(PDO::FETCH_ASSOC);
+        ?>
 
-<?php foreach ($cats as $c): ?>
-    <option value="<?= $c['category_id'] ?>" <?= ($category_id == $c['category_id'] ? 'selected' : '') ?>>
-        <?= htmlspecialchars($c['category_name']) ?>
-    </option>
-<?php endforeach; ?>
-    
-    </select><br><br>
+        <?php foreach ($cats as $c): ?>
+            <option value="<?= $c['category_id'] ?>" 
+                <?= ($category_id == $c['category_id'] ? 'selected' : '') ?>>
+                <?= htmlspecialchars($c['category_name']) ?>
+            </option>
+        <?php endforeach; ?>
+
+    </select>
 
     <label>Region:</label>
-    <input type="text" name="region" value="<?= htmlspecialchars($region) ?>"><br><br>
+    <input type="text" name="region" value="<?= htmlspecialchars($region) ?>">
 
-    <label>Instructions:</label><br>
-    <textarea name="instructions" rows="5" cols="40"><?= htmlspecialchars($instructions) ?></textarea><br><br>
+    <label>Instructions:</label>
+    <textarea name="instructions" rows="5"><?= htmlspecialchars($instructions) ?></textarea>
 
-    <label>Image URL:</label><br>
-    <input type="text" name="image" value="<?= htmlspecialchars($image) ?>"><br><br>
+    <label>Image URL:</label>
+    <input type="text" name="image" value="<?= htmlspecialchars($image) ?>">
 
     <button type="submit">Add Recipe</button>
 
