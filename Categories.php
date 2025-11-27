@@ -15,51 +15,92 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Add Category
+$error = "";
+$success = "";
+
+// --- VALIDATION FUNCTION ---
+function validateCategory($name) {
+    if (strlen($name) < 2) {
+        return "Category name must be at least 2 characters long.";
+    }
+    if (!preg_match("/^[A-Za-z\s]+$/", $name)) {
+        return "Category name should contain letters only.";
+    }
+    return "";
+}
+
+/* ==========================
+   ADD NEW CATEGORY
+========================== */
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['add'])) {
     $newCat = trim($_POST['category_name']);
 
-    if ($newCat !== "") {
-        $stmt = $db->prepare("INSERT INTO categories (category_name) VALUES (?)");
-        $stmt->execute([$newCat]);
+    $error = validateCategory($newCat);
+
+    if ($error === "") {
+        try {
+            $stmt = $db->prepare("INSERT INTO categories (category_name) VALUES (?)");
+            $stmt->execute([$newCat]);
+            $success = "Category added successfully!";
+        } catch (PDOException $e) {
+            $error = "Error adding category.";
+        }
     }
-    header("Location: categories.php");
-    exit;
 }
 
-// Update Category
+/* ==========================
+   UPDATE CATEGORY
+========================== */
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['update'])) {
+
     $name = trim($_POST['category_name']);
-    $id = (int)$_POST['category_id'];
+    $id = (int) $_POST['category_id'];
 
-    $stmt = $db->prepare("UPDATE categories SET category_name = ? WHERE category_id = ?");
-    $stmt->execute([$name, $id]);
+    $error = validateCategory($name);
 
-    header("Location: categories.php");
-    exit;
+    if ($error === "") {
+        $stmt = $db->prepare("UPDATE categories SET category_name = ? WHERE category_id = ?");
+        $stmt->execute([$name, $id]);
+        $success = "Category updated!";
+    }
 }
 
-// Delete Category
+/* ==========================
+   DELETE CATEGORY
+========================== */
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['delete'])) {
 
     $id = (int)$_POST['category_id'];
 
-    // OPTIONAL: Prevent deleting categories used by meals
-    // $db->prepare("DELETE FROM meals WHERE category_id = ?")->execute([$id]);
+    // Prevent deleting categories that are still used by recipes
+    $check = $db->prepare("SELECT COUNT(*) FROM meals WHERE category_id = ?");
+    $check->execute([$id]);
+    $inUse = $check->fetchColumn();
 
-    $stmt = $db->prepare("DELETE FROM categories WHERE category_id = ?");
-    $stmt->execute([$id]);
-
-    header("Location: categories.php");
-    exit;
+    if ($inUse > 0) {
+        $error = "Cannot delete this category. It is assigned to existing recipes.";
+    } else {
+        $stmt = $db->prepare("DELETE FROM categories WHERE category_id = ?");
+        $stmt->execute([$id]);
+        $success = "Category deleted successfully.";
+    }
 }
 
-
 // Fetch all categories
-$categories = $db->query("SELECT * FROM categories ORDER BY category_name ASC")->fetchAll(PDO::FETCH_ASSOC);
+$categories = $db->query("SELECT * FROM categories ORDER BY category_name ASC")
+                ->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <h2>Manage Categories</h2>
+
+<!-- Error / Success Messages -->
+<?php if ($error): ?>
+    <p class="error"><?= htmlspecialchars($error) ?></p>
+<?php endif; ?>
+
+<?php if ($success): ?>
+    <p class="success"><?= htmlspecialchars($success) ?></p>
+<?php endif; ?>
 
 <!-- Add New Category -->
 <form method="POST">
@@ -70,24 +111,24 @@ $categories = $db->query("SELECT * FROM categories ORDER BY category_name ASC")-
 
 <hr>
 
-<!-- Edit Categories -->
+<!-- Edit/Delete Categories -->
 <h3>Existing Categories</h3>
 
 <?php foreach ($categories as $cat): ?>
 <form method="POST" style="margin-bottom:10px;">
     <input type="hidden" name="category_id" value="<?= $cat['category_id'] ?>">
 
-    <input type="text" name="category_name" 
-           value="<?= htmlspecialchars($cat['category_name']) ?>" required>
+    <input type="text" name="category_name"
+           value="<?= htmlspecialchars($cat['category_name']) ?>"
+           required>
 
     <button type="submit" name="update">Update</button>
 
     <button type="submit" name="delete"
-            onclick="return confirm('Delete this category? This cannot be undone.');">
+        onclick="return confirm('Delete this category? This cannot be undone.');">
         Delete
     </button>
 </form>
 <?php endforeach; ?>
-
 
 <?php include 'footer.php'; ?>
