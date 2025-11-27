@@ -5,39 +5,68 @@ require 'connect.php';
 $error = "";
 $success = "";
 
+// ===========================
+//  VALIDATION HELPERS
+// ===========================
+function clean($value) {
+    return trim(htmlspecialchars($value, ENT_QUOTES, 'UTF-8'));
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $username = trim($_POST['username']);
-    $email    = strtolower(trim($_POST['email']));
+    $username = clean($_POST['username']);
+    $email    = strtolower(clean($_POST['email']));
     $password = trim($_POST['password']);
-    $confirm  = trim($_POST['confirm_password']); // NEW
-    $role     = $_POST['role']; // user or admin
+    $confirm  = trim($_POST['confirm_password']);
+    $role     = $_POST['role']; // Raw (validated later)
 
-    if ($username && $email && $password && $confirm && $role) {
+    // ===========================
+    //  BASIC VALIDATION
+    // ===========================
+    if (!$username || !$email || !$password || !$confirm || !$role) {
+        $error = "All fields are required.";
+    }
+    elseif (strlen($username) < 3) {
+        $error = "Username must be at least 3 characters long.";
+    }
+    elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Invalid email format.";
+    }
+    elseif ($password !== $confirm) {
+        $error = "Passwords do not match.";
+    }
+    elseif (strlen($password) < 6) {
+        $error = "Password must be at least 6 characters long.";
+    }
+    elseif (!in_array($role, ['user', 'admin'])) {
+        $error = "Invalid role selected.";
+    }
+    else {
 
-        // NEW — Check if passwords match
-        if ($password !== $confirm) {
-            $error = "Passwords do not match.";
+        // ===========================
+        //  CHECK IF EMAIL EXISTS
+        // ===========================
+        $check = $db->prepare("SELECT * FROM users WHERE email = ?");
+        $check->execute([$email]);
+
+        if ($check->rowCount() > 0) {
+            $error = "Email already registered!";
         } else {
 
-            // Check if email exists
-            $check = $db->prepare("SELECT * FROM users WHERE email = ?");
-            $check->execute([$email]);
+            // ===========================
+            //  HASH AND INSERT
+            // ===========================
+            $hashed = password_hash($password, PASSWORD_DEFAULT);
 
-            if ($check->rowCount() > 0) {
-                $error = "Email already registered!";
-            } else {
-                $hashed = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $db->prepare("
+                INSERT INTO users (username, email, password, role)
+                VALUES (?, ?, ?, ?)
+            ");
+            $stmt->execute([$username, $email, $hashed, $role]);
 
-                $stmt = $db->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
-                $stmt->execute([$username, $email, $hashed, $role]);
+            $success = "Registration successful! You may now log in.";
 
-                $success = "Registration successful! You may now log in.";
-            }
         }
-
-    } else {
-        $error = "All fields are required.";
     }
 }
 ?>
@@ -49,17 +78,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <form method="POST" action="register.php">
 
     <label>Username:</label>
-    <input type="text" name="username" required>
+    <input type="text" name="username" minlength="3" required>
 
     <label>Email:</label>
     <input type="email" name="email" required>
 
     <label>Password:</label>
-    <input type="password" name="password" required>
+    <input type="password" name="password" minlength="6" required>
 
-    <!-- NEW FIELD: Confirm Password -->
     <label>Confirm Password:</label>
-    <input type="password" name="confirm_password" required>
+    <input type="password" name="confirm_password" minlength="6" required>
 
     <label>Register as:</label>
     <select name="role" required>
