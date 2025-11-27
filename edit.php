@@ -26,7 +26,7 @@ $success = "";
 if ($searchQuery !== "") {
     $sql = "
         SELECT 
-            MIN(meals.meal_id) AS meal_id,
+            MIN(meals.meal_id) AS meal_id, 
             meals.meal_name,
             categories.category_name
         FROM meals
