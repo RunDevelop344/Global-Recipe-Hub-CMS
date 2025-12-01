@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Only admin can access
+// Only admin can access this page
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     echo "<p>Access denied. Admins only.</p>";
     include 'footer.php';
@@ -21,7 +21,6 @@ $success = "";
 /* ================================================================
    VALIDATION HELPERS
 ================================================================ */
-
 function valid_username($u) {
     return strlen($u) >= 3 && preg_match("/^[A-Za-z0-9 _-]+$/", $u);
 }
@@ -31,7 +30,7 @@ function valid_email($e) {
 }
 
 /* ================================================================
-   ADD NEW USER
+   ADD USER
 ================================================================ */
 if (isset($_POST['add_user'])) {
 
@@ -40,12 +39,11 @@ if (isset($_POST['add_user'])) {
     $password = trim($_POST['password']);
     $role     = $_POST['role'];
 
-    // BASIC VALIDATIONS
-    if (!$username || !$email || !$password || !$role) {
-        $error = "All fields are required to create a user.";
+    if (!$username || !$email || !$password) {
+        $error = "All fields are required.";
     }
     elseif (!valid_username($username)) {
-        $error = "Invalid username. Minimum 3 characters. Allowed: letters, numbers, spaces, - , _";
+        $error = "Invalid username.";
     }
     elseif (!valid_email($email)) {
         $error = "Invalid email format.";
@@ -54,7 +52,7 @@ if (isset($_POST['add_user'])) {
         $error = "Password must be at least 6 characters.";
     }
     else {
-        // Check duplicate email
+        // Prevent duplicate email
         $check = $db->prepare("SELECT * FROM users WHERE email=?");
         $check->execute([$email]);
 
@@ -63,18 +61,15 @@ if (isset($_POST['add_user'])) {
         } else {
             $hashed = password_hash($password, PASSWORD_DEFAULT);
 
-            $add = $db->prepare("
+            $insert = $db->prepare("
                 INSERT INTO users (username, email, password, role)
                 VALUES (?, ?, ?, ?)
             ");
-            $add->execute([$username, $email, $hashed, $role]);
+            $insert->execute([$username, $email, $hashed, $role]);
 
-            $success = "User added successfully!";
+            $success = "User created successfully!";
         }
     }
-
-    header("Location: users.php");
-    exit;
 }
 
 /* ================================================================
@@ -88,40 +83,39 @@ if (isset($_POST['update_user'])) {
     $role     = $_POST['role'];
     $password = trim($_POST['password']); // optional
 
-    // VALIDATIONS
     if (!valid_username($username)) {
         $error = "Invalid username.";
     }
     elseif (!valid_email($email)) {
         $error = "Invalid email format.";
-    } else {
-
-        // Prevent duplicate email conflicts
+    } 
+    else {
+        // Check for duplicate email
         $check = $db->prepare("SELECT * FROM users WHERE email=? AND user_id != ?");
         $check->execute([$email, $id]);
 
         if ($check->rowCount() > 0) {
             $error = "Another user already uses this email.";
-        } 
+        }
         else {
-            // Password update
             if ($password !== "") {
                 if (strlen($password) < 6) {
                     $error = "Password must be at least 6 characters.";
                 } else {
+                    // Update including password
                     $hashed = password_hash($password, PASSWORD_DEFAULT);
+
                     $update = $db->prepare("
-                        UPDATE users 
+                        UPDATE users
                         SET username=?, email=?, password=?, role=?
                         WHERE user_id=?
                     ");
                     $update->execute([$username, $email, $hashed, $role, $id]);
                 }
-            } 
-            else {
-                // No password change
+            } else {
+                // Update without password change
                 $update = $db->prepare("
-                    UPDATE users 
+                    UPDATE users
                     SET username=?, email=?, role=?
                     WHERE user_id=?
                 ");
@@ -131,28 +125,27 @@ if (isset($_POST['update_user'])) {
             $success = "User updated successfully!";
         }
     }
-
-    header("Location: users.php");
-    exit;
 }
 
 /* ================================================================
    DELETE USER
 ================================================================ */
 if (isset($_POST['delete_user'])) {
+
     $id = (int)$_POST['user_id'];
 
-    if ($id !== $_SESSION['user_id']) { // prevent deleting yourself
+    // Prevent admin from deleting themselves
+    if ($id != $_SESSION['user_id']) {
         $delete = $db->prepare("DELETE FROM users WHERE user_id=?");
         $delete->execute([$id]);
+        $success = "User deleted successfully!";
+    } else {
+        $error = "You cannot delete your own admin account.";
     }
-
-    header("Location: users.php");
-    exit;
 }
 
 /* ================================================================
-   FETCH USERS
+   FETCH ALL USERS
 ================================================================ */
 $users = $db->query("SELECT * FROM users ORDER BY user_id ASC")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -161,12 +154,12 @@ $users = $db->query("SELECT * FROM users ORDER BY user_id ASC")->fetchAll(PDO::F
 <h2>Manage Users</h2>
 
 <!-- SUCCESS / ERROR MESSAGES -->
-<?php if (!empty($error)): ?>
-    <p class="error"><?= htmlspecialchars($error) ?></p>
+<?php if ($error): ?>
+    <p style="color:red;"><?= htmlspecialchars($error) ?></p>
 <?php endif; ?>
 
-<?php if (!empty($success)): ?>
-    <p class="success"><?= htmlspecialchars($success) ?></p>
+<?php if ($success): ?>
+    <p style="color:green;"><?= htmlspecialchars($success) ?></p>
 <?php endif; ?>
 
 
@@ -196,8 +189,10 @@ $users = $db->query("SELECT * FROM users ORDER BY user_id ASC")->fetchAll(PDO::F
 
 <h3>Existing Users</h3>
 <div style="max-width:700px; margin:auto;">
+
 <?php foreach ($users as $user): ?>
-    <form method="POST" style="background:#fff; padding:15px; border-radius:10px; margin-bottom:10px; box-shadow:0 3px 6px rgba(0,0,0,0.1);">
+    <form method="POST" style="background:#fff; padding:15px; margin-bottom:15px; border-radius:10px; box-shadow:0 3px 6px rgba(0,0,0,0.1);">
+
         <input type="hidden" name="user_id" value="<?= $user['user_id'] ?>">
 
         <label>Username:</label>
@@ -213,18 +208,18 @@ $users = $db->query("SELECT * FROM users ORDER BY user_id ASC")->fetchAll(PDO::F
         </select>
 
         <label>New Password (optional):</label>
-        <input type="password" name="password" placeholder="Leave blank to keep existing password">
+        <input type="password" name="password" placeholder="Leave blank to keep existing">
 
-        <button type="submit" name="update_user">Update User</button>
+        <button type="submit" name="update_user">Update</button>
 
-        <?php if ($user['user_id'] !== $_SESSION['user_id']): ?>
+        <?php if ($user['user_id'] != $_SESSION['user_id']): ?>
             <button type="submit" name="delete_user" onclick="return confirm('Delete this user?')">Delete</button>
         <?php else: ?>
-            <p style="color:red;"><em>You cannot delete your own admin account.</em></p>
+            <p style="color:#d00;"><em>You cannot delete your own admin account.</em></p>
         <?php endif; ?>
-
     </form>
 <?php endforeach; ?>
+
 </div>
 
 <?php include 'footer.php'; ?>
