@@ -13,7 +13,13 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 
 // Fetch all recipes for dropdown
-$recipeStmt = $db->query("SELECT meal_id, meal_name FROM meals ORDER BY meal_name ASC");
+$recipeStmt = $db->query("
+    SELECT MIN(meal_id) AS meal_id, meal_name
+    FROM meals
+    GROUP BY meal_name
+    ORDER BY meal_name ASC
+");
+
 $recipes = $recipeStmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Selected recipe

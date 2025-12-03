@@ -42,7 +42,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
         <div class="admin-card">
             <!-- <span class="admin-icon"></span> -->
-            <a href="manage_comments.php">Moderate Comments</a>
+            <a href="moderate_comments.php">Moderate Comments</a>
         </div>
 
         <div class="admin-card">

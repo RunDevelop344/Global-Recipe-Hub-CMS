@@ -24,16 +24,24 @@ $id = $_GET['id'] ?? null;
    SEARCH RECIPES
 ============================================= */
 $sql = "
-    SELECT meals.meal_id, meals.meal_name, categories.category_name 
-    FROM meals 
+    SELECT 
+        MIN(meals.meal_id) AS meal_id,
+        meals.meal_name,
+        categories.category_name
+    FROM meals
     JOIN categories ON meals.category_id = categories.category_id
 ";
+
 
 if ($searchQuery !== "") {
     $sql .= " WHERE meals.meal_name LIKE :s OR categories.category_name LIKE :s ";
 }
 
-$sql .= " ORDER BY meals.meal_name ASC";
+$sql .= "
+    GROUP BY meals.meal_name, categories.category_name
+    ORDER BY meals.meal_name ASC
+";
+
 
 $stm = $db->prepare($sql);
 if ($searchQuery !== "") {
@@ -194,7 +202,7 @@ if (isset($_POST['update'])) {
     <input type="text" name="region" value="<?= htmlspecialchars($recipe['region']) ?>">
 
     <label>Instructions:</label>
-    <textarea name="instructions" rows="5"><?= htmlspecialchars($recipe['instructions']) ?></textarea>
+    <textarea name="instructions" id="instructions"><?= $recipe['instructions'] ?></textarea>
 
     <label>Image URL:</label>
     <input type="text" name="image" value="<?= htmlspecialchars($recipe['image_url']) ?>">
@@ -205,5 +213,12 @@ if (isset($_POST['update'])) {
 <form method="POST" onsubmit="return confirm('Delete this recipe?');">
     <button type="submit" name="delete">Delete</button>
 </form>
+
+<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+<script>
+    CKEDITOR.replace('instructions');
+</script>
+
+
 
 <?php include 'footer.php'; ?>
