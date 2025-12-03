@@ -11,6 +11,7 @@ $allowedSorts = ['meal_name', 'created_at', 'updated_at'];
 $sort = $_GET['sort'] ?? 'meal_id';
 $order = $_GET['order'] ?? 'DESC';
 $search = trim($_GET['search'] ?? '');
+$selectedCat = $_GET['category'] ?? 'all';
 
 // --- PAGINATION SETTINGS ---
 $recipesPerPage = 12; // You can change this to 8, 12, 16, 20, etc.
