@@ -64,9 +64,19 @@ $sql = "
     JOIN categories ON meals.category_id = categories.category_id
 ";
 
+$sql .= " WHERE 1 ";
+$params = [];
+
 if ($search !== '') {
-    $sql .= " WHERE meals.meal_name LIKE :search OR categories.category_name LIKE :search";
+    $sql .= " AND (meals.meal_name LIKE :search OR categories.category_name LIKE :search)";
+    $params[':search'] = "%$search%";
 }
+
+if ($selectedCat !== 'all') {
+    $sql .= " AND meals.category_id = :cat";
+    $params[':cat'] = $selectedCat;
+}
+
 
 $sql .= "
     GROUP BY meals.meal_name, meals.image_url, categories.category_name
@@ -80,8 +90,8 @@ $sql .= "
 
 $statement = $db->prepare($sql);
 
-if ($search !== '') {
-    $statement->bindValue(':search', "%$search%", PDO::PARAM_STR);
+foreach ($params as $key => $val) {
+    $statement->bindValue($key, $val);
 }
 
 $statement->bindValue(':limit', $recipesPerPage, PDO::PARAM_INT);
@@ -89,7 +99,6 @@ $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
 
 $statement->execute();
 $recipes = $statement->fetchAll(PDO::FETCH_ASSOC);
-
 
 
 function sortArrow($column, $currentSort, $currentOrder) {
@@ -166,18 +175,20 @@ $selectedCat = $_GET['category'] ?? 'all';
 
 <!-- PAGINATION (correct location) -->
 <div class="pagination" style="text-align:center; margin:20px 0;">
+
     <?php if ($page > 1): ?>
-        <a href="?page=<?= $page - 1 ?>&sort=<?= $sort ?>&order=<?= $order ?>&search=<?= urlencode($search) ?>">Previous</a>
+        <a href="?page=<?= $page - 1 ?>&sort=<?= $sort ?>&order=<?= $order ?>&search=<?= urlencode($search) ?>&category=<?= $selectedCat ?>">Previous</a>
     <?php endif; ?>
 
     <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-        <a 
-            href="?page=<?= $i ?>&sort=<?= $sort ?>&order=<?= $order ?>&search=<?= urlencode($search) ?>"
+        <a
+            href="?page=<?= $i ?>&sort=<?= $sort ?>&order=<?= $order ?>&search=<?= urlencode($search) ?>&category=<?= $selectedCat ?>"
             style="<?= $i == $page ? 'font-weight:bold; color:red;' : '' ?>"
         ><?= $i ?></a>
     <?php endfor; ?>
 
     <?php if ($page < $totalPages): ?>
-        <a href="?page=<?= $page + 1 ?>&sort=<?= $sort ?>&order=<?= $order ?>&search=<?= urlencode($search) ?>">Next</a>
+        <a href="?page=<?= $page + 1 ?>&sort=<?= $sort ?>&order=<?= $order ?>&search=<?= urlencode($search) ?>&category=<?= $selectedCat ?>">Next</a>
     <?php endif; ?>
+
 </div>
