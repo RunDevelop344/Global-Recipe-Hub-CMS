@@ -1,6 +1,6 @@
 
 <?php include 'header.php'; ?>
-<?php include 'connect.php'; ?>
+<!-- <?php include 'connect.php'; ?> -->
 
 <h2>All Recipes</h2>
 
@@ -32,7 +32,9 @@ $countSql = "
     SELECT COUNT(DISTINCT meals.meal_name) AS total
     FROM meals
     JOIN categories ON meals.category_id = categories.category_id
+    WHERE 1
 ";
+
 
 if ($search !== '') {
     $countSql .= " WHERE meals.meal_name LIKE :search OR categories.category_name LIKE :search";
@@ -103,10 +105,34 @@ $currentSortName = [
 ?>
 
 <!-- --- Step 7: Search bar --- -->
-<form method="get" style="margin-bottom: 20px;">
-    <input type="text" name="search" placeholder="Search recipes or categories..." value="<?= htmlspecialchars($search) ?>">
+<?php
+// Fetch categories for dropdown
+$catStmt = $db->query("SELECT category_id, category_name FROM categories ORDER BY category_name ASC");
+$catList = $catStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$selectedCat = $_GET['category'] ?? 'all';
+?>
+
+<form method="get" style="margin-bottom: 20px; display:flex; gap:10px; align-items:center;">
+    
+    <!-- Keyword Search -->
+    <input type="text" name="search" placeholder="Search recipes or categories..." 
+           value="<?= htmlspecialchars($search) ?>">
+
+    <!-- Category Dropdown -->
+    <select name="category">
+        <option value="all">All Categories</option>
+        <?php foreach ($catList as $cat): ?>
+            <option value="<?= $cat['category_id'] ?>" 
+                <?= ($selectedCat == $cat['category_id']) ? 'selected' : '' ?>>
+                <?= htmlspecialchars($cat['category_name']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+
     <button type="submit">Search</button>
 </form>
+
 
 <div class="sort-links" style="margin-bottom: 10px;">
     <strong>Sort by:</strong>

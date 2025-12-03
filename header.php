@@ -3,6 +3,17 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 ?>
+<?php
+ require 'connect.php';
+
+// Fetch categories for dropdown menu
+$categoryMenu = $db->query("
+    SELECT category_id, category_name 
+    FROM categories 
+    ORDER BY category_name ASC
+")->fetchAll(PDO::FETCH_ASSOC);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,6 +28,20 @@ if (session_status() === PHP_SESSION_NONE) {
 <nav>
 
     <a href="index.php">Home</a>
+
+    <!-- CATEGORY DROPDOWN -->
+<div class="dropdown">
+    <button class="dropbtn" onclick="toggleCategory(event)">Categories</button>
+
+    <div class="dropdown-content" id="catMenu">
+        <?php foreach ($categoryMenu as $cat): ?>
+            <a href="category.php?cat=<?= $cat['category_id'] ?>">
+                <?= htmlspecialchars($cat['category_name']) ?>
+            </a>
+        <?php endforeach; ?>
+    </div>
+</div>
+
 
     <!-- CLICK DROPDOWN -->
     <div class="dropdown">
@@ -58,4 +83,22 @@ document.addEventListener("click", function(event) {
     }
 });
 </script>
+
+<script>
+function toggleCategory(event) {
+    event.stopPropagation();
+    const menu = document.getElementById("catMenu");
+    if (menu) {
+        menu.classList.toggle("show");
+    }
+}
+
+document.addEventListener("click", function(event) {
+    const menu = document.getElementById("catMenu");
+    if (menu && !event.target.closest(".dropdown")) {
+        menu.classList.remove("show");
+    }
+});
+</script>
+
 

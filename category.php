@@ -1,5 +1,5 @@
 <?php
-require 'connect.php';
+// require 'connect.php';
 require 'header.php';
 
 $catId = $_GET['cat'] ?? null;
