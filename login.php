@@ -37,7 +37,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
-<?php include 'header.php'; ?>
+<<?php 
+include 'header.php'; ?> 
 
 <h2>Login</h2>
 

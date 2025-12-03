@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 ?>
 <?php
- require 'connect.php';
+ require_once 'connect.php';
 
 // Fetch categories for dropdown menu
 $categoryMenu = $db->query("
