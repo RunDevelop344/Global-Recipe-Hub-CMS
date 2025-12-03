@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require 'connect.php';
+require_once 'connect.php';
 
 $error = "";
 $redirect = $_POST['redirect'] ?? $_GET['redirect'] ?? 'index.php';

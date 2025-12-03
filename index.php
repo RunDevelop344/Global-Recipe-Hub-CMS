@@ -29,6 +29,7 @@ if (!in_array($sort, $allowedSorts)) {
 $order = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
 
 // Count total recipes for pagination
+// Count total recipes for pagination
 $countSql = "
     SELECT COUNT(DISTINCT meals.meal_name) AS total
     FROM meals
@@ -36,19 +37,26 @@ $countSql = "
     WHERE 1
 ";
 
+$countParams = [];
 
 if ($search !== '') {
-    $countSql .= " WHERE meals.meal_name LIKE :search OR categories.category_name LIKE :search";
+    $countSql .= " AND (meals.meal_name LIKE :search OR categories.category_name LIKE :search)";
+    $countParams[':search'] = "%$search%";
+}
+
+if ($selectedCat !== 'all') {
+    $countSql .= " AND meals.category_id = :cat";
+    $countParams[':cat'] = $selectedCat;
 }
 
 $countStmt = $db->prepare($countSql);
 
-if ($search !== '') {
-    $countStmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
+foreach ($countParams as $key => $val) {
+    $countStmt->bindValue($key, $val);
 }
 
 $countStmt->execute();
-$totalRecipes = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+$totalRecipes = $countStmt->fetchColumn();
 
 $totalPages = ceil($totalRecipes / $recipesPerPage);
 
