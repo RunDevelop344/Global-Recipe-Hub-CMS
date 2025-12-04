@@ -91,6 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <label>Register as:</label>
     <select name="role" required>
+        <option value="" disabled selected>Select a role</option>
         <option value="user">User</option>
         <option value="admin">Admin</option>
     </select>

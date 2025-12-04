@@ -67,7 +67,7 @@ if ($selectedRecipe) {
         <option value="">-- Choose Recipe --</option>
         <?php foreach ($recipes as $recipe): ?>
             <option value="<?= $recipe['meal_id'] ?>" <?= ($selectedRecipe == $recipe['meal_id'] ? 'selected' : '') ?>>
-                <?= htmlspecialchars($recipe['meal_name']) ?>
+                <?= htmlspecialchars($recipe['meal_name'] ?: 'Unnamed Recipe') ?>
             </option>
         <?php endforeach; ?>
     </select>

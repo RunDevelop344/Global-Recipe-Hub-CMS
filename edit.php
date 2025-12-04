@@ -63,7 +63,7 @@ $recipes = $stm->fetchAll(PDO::FETCH_ASSOC);
 </form>
 
 <!-- RECIPE LIST TABLE -->
-<table border="1" cellpadding="8" cellspacing="0" width="100%" style="border-collapse:collapse;">
+<table class="recipe-table">
     <tr style="background:#eee;">
         <th>ID</th>
         <th>Recipe Name</th>

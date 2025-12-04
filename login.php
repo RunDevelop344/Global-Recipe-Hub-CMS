@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['email']   = $user['email'];
-            $_SESSION['role']    = $user['role']; // ★ important
+            $_SESSION['role']    = $user['role'];
 
             header("Location: " . $redirect);
             exit;
@@ -36,20 +36,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Global Recipe Hub</title>
+</head>
 
-<<?php 
-include 'header.php'; ?> 
+<body> -->
+
+<?php include 'header.php'; ?>
 
 <h2>Login</h2>
 
 <form method="POST" action="login.php">
     <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
 
-    <label>Email:</label>
-    <input type="email" name="email" required>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
 
-    <label>Password:</label>
-    <input type="password" name="password" required>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
 
     <button type="submit">Login</button>
 </form>
@@ -59,3 +66,6 @@ include 'header.php'; ?>
 <?php endif; ?>
 
 <p>Don't have an account? <a href="register.php">Register here</a></p>
+
+</body>
+</html>
