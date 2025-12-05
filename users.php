@@ -150,9 +150,11 @@ $users = $db->query("SELECT * FROM users ORDER BY user_id ASC")->fetchAll(PDO::F
 
     <label>Role:</label>
     <select name="role" required>
-        <option value="user">User</option>
-        <option value="admin">Admin</option>
-    </select>
+    <option value="" disabled selected>Select a role</option>
+    <option value="user">User</option>
+    <option value="admin">Admin</option>
+</select>
+
 
     <button type="submit" name="add_user">Add User</button>
 </form>
@@ -172,45 +174,28 @@ $users = $db->query("SELECT * FROM users ORDER BY user_id ASC")->fetchAll(PDO::F
     </thead>
 
     <tbody>
-        <?php foreach ($users as $user): ?>
-        <tr>
-            <td><?= $user['user_id'] ?></td>
+    <?php foreach ($users as $user): ?>
+    <tr>
+        <td><?= $user['user_id'] ?></td>
+        <td><?= htmlspecialchars($user['username']) ?></td>
+        <td><?= htmlspecialchars($user['email']) ?></td>
+        <td><?= htmlspecialchars($user['role']) ?></td>
 
-            <td>
-                <form method="POST">
-                    <input type="hidden" name="user_id" value="<?= $user['user_id'] ?>">
-                    <input type="text" name="username" value="<?= htmlspecialchars($user['username']) ?>" required>
-            </td>
+        <!-- No password field shown, just plain text -->
+        <td>—</td>
 
-            <td>
-                    <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" required>
-            </td>
+        <td>
+            <form method="POST" onsubmit="return confirm('Delete this user?');">
+                <input type="hidden" name="user_id" value="<?= $user['user_id'] ?>">
+                <?php if ($user['user_id'] != $_SESSION['user_id']): ?>
+                    <button type="submit" name="delete_user">Delete</button>
+                <?php endif; ?>
+            </form>
+        </td>
+    </tr>
+    <?php endforeach; ?>
+</tbody>
 
-            <td>
-                    <select name="role" required>
-                        <option value="user" <?= $user['role']==='user'?'selected':'' ?>>User</option>
-                        <option value="admin" <?= $user['role']==='admin'?'selected':'' ?>>Admin</option>
-                    </select>
-            </td>
-
-            <td>
-                    <input type="password" name="password" placeholder="Leave blank">
-            </td>
-
-            <td>
-                    <button type="submit" name="update_user">Update</button>
-                </form>
-
-                <form method="POST" onsubmit="return confirm('Delete this user?');" style="display:inline;">
-                    <input type="hidden" name="user_id" value="<?= $user['user_id'] ?>">
-                    <?php if ($user['user_id'] != $_SESSION['user_id']): ?>
-                        <button type="submit" name="delete_user">Delete</button>
-                    <?php endif; ?>
-                </form>
-            </td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
 </table>
 
 <?php include 'footer.php'; ?>
