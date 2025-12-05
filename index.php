@@ -169,7 +169,13 @@ $selectedCat = $_GET['category'] ?? 'all';
 <?php if (count($recipes) > 0): ?>
     <?php foreach ($recipes as $recipe): ?>
         <div class="recipe-card" style="border: 1px solid #ccc; padding: 10px; width: 220px; border-radius: 8px;">
-            <img src="<?= htmlspecialchars($recipe['image_url']) ?>" alt="<?= htmlspecialchars($recipe['meal_name']) ?>" width="200" height="150" style="border-radius: 5px;">
+            <?php if (!empty($recipe['image_url'])): ?>
+    <img src="<?= htmlspecialchars($recipe['image_url']) ?>"
+         alt="<?= htmlspecialchars($recipe['meal_name']) ?>"
+         width="200" height="150"
+         style="border-radius: 5px;">
+    <?php endif; ?>
+
             <h3><?= htmlspecialchars($recipe['meal_name']) ?></h3>
             <p><strong>Category:</strong> <?= htmlspecialchars($recipe['category']) ?></p>
             <p><small>Created: <?= htmlspecialchars($recipe['created_at']) ?></small></p>
